@@ -43,7 +43,73 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const app = express();
+const port = 3000;
+let todos = [{id:3, "title": "Buy groceries", "completed": false, description: "I should buy groceries" }];
+let nextId = 1;
 
-app.use(bodyParser.json());
+
+// app.use(bodyParser.json());
+app.use(express.json())
+function getAllTodos(req,res){
+   
+  res.send(todos);
+
+
+}
+
+function getTodo(req,res){
+
+  const id = parseInt(req.params.id);
+  const todo = todos.find( todo => todo.id === id);
+  if(todo){
+    res.send(todo);
+  }
+  else{
+    res.send("No such todo found");
+  }
+
+}
+
+function postTodos(req,res){
+  // const { title, completed, description } = req.body;
+  // const todo = { id: nextId++, title, completed, description };
+  // todos.push(todo);
+  // res.send(todo);
+  console.log(req.body)
+
+}
+
+function putTodos(req, res){
+  const id = parseInt(req.params.id);
+  const { title, completed } = req.body;
+  const todo = todos.find(todo => todo.id === id);
+  if (todo) {
+    todo.title = title || todo.title;
+    todo.completed = completed ;
+    
+    res.json(todo);
+  } else {
+    res.send("No such todo found");
+  }
+}
+function deleteTodos(req,res){
+  const id = parseInt(req.params.id);
+  const index = todos.findIndex(todo => todo.id === id);
+  if (index !== -1) {
+    todos.splice(index, 1);
+    res.sendStatus(204);
+  } else {
+    res.send("No such todo found");
+  }
+}
+app.get('/todos', getAllTodos);
+app.get('/todos/:id', getTodo);
+app.post('/todos',postTodos);
+app.put('/todos/:id', putTodos);
+app.delete('/todos/:id', deleteTodos);
+
+
+app.listen(port,()=>{
+  console.log(`Todo Server listening on ${port}`)});
 
 module.exports = app;

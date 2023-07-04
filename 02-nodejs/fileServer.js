@@ -20,6 +20,95 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
+const port = 3000;
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+
+
+
+function readFile(path){
+
+  // var fileData =[];
+  // fs.readFile(path, 'utf8', (err, data) => {
+  //   if (err) throw err;
+  //   filesData = data;
+  //   console.log(data);
+  // });
+  // return fileData;
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, 'utf8', (err, data) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(data);
+    });
+  });
+
+}
+
+function readFileNames(path){
+//  var filesArray = []
+//   fs.readdir(path,'utf8', (err,files) => {
+//     if (err) throw err;
+//     filesArray = files;
+//     console.log(files);
+   
+//   })
+
+//   return filesArray;
+return new Promise((resolve, reject) => {
+  fs.readdir(path, 'utf8', (err, files) => {
+    if (err) {
+      reject(err);
+      return;
+    }
+    resolve(files);
+  });
+});
+}
+
+
+function getAllFilesName(req,res){
+
+  
+  var filesNameArray =[]
+  readFileNames('./files').then(files => {
+    console.log(files);
+    res.send(files);
+  })
+  .catch(err => {
+    console.error(err);
+    res.send("No files");
+  });
+  // res.send(filesNameArray);
+ 
+  
+}
+
+function getFileContent(req,res){
+  const dirPath = './files/' + req.params.filename;
+  var fileContent = {}
+ readFile(dirPath).then(data => {
+    console.log(data);
+    res.send(data);
+  })
+  .catch(err => {
+    console.error(err);
+    res.send("No content")
+  });
+ 
+  // res.send(fileContent);
+ 
+ 
+}
+
+app.get('/files', getAllFilesName);
+app.get('/file/:filename', getFileContent);
+
+app.listen(port,()=>{
+  console.log(`Todo Server listening on ${port}`)});
+
 
 
 module.exports = app;
